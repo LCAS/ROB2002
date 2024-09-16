@@ -1,7 +1,5 @@
 #!/bin/bash
 
-git config --global core.autocrlf false # to prevent issues on windows
-
 # source additional packages
 source /opt/ros/lcas/install/setup.bash
 
