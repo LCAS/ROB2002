@@ -14,7 +14,6 @@ jobs:
     strategy:
       matrix:
         config: 
-          - default
           - cuda-opengl
     steps:
       - name: Checkout from github
