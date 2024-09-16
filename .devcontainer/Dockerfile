@@ -10,7 +10,8 @@ RUN apt-get update \
     && apt-get install -qq -y --no-install-recommends \
     git \
     python3-pip \
-    python3-rosdep
+    python3-rosdep \
+    ros-humble-rviz2
 
 # get the source tree and analyse it for its package.xml only
 FROM base as sourcefilter
@@ -36,5 +37,11 @@ RUN if ! id ros; then \
 
 # add sudo without password
 ENV DEBIAN_FRONTEND=noninteractive
+
+# add commit history to bust cache if and when needed.
+ADD "https://api.github.com/repos/LCAS/limo_ros2/commits?per_page=1&sha=humble" .lcas_addons.limo_ros2.commits
+
+COPY .devcontainer/*repos .devcontainer/*.sh /tmp/.devcontainer/
+RUN bash /tmp/.devcontainer/install.sh
 
 USER ros
