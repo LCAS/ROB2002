@@ -11,7 +11,8 @@ RUN apt-get update \
     git \
     python3-pip \
     python3-rosdep \
-    ros-humble-rviz2
+    ros-humble-rviz2 \
+    zenoh-bridge-ros2dds
 
 # get the source tree and analyse it for its package.xml only
 FROM base as sourcefilter
