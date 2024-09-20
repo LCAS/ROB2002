@@ -12,6 +12,7 @@ RUN apt-get update \
     python3-pip \
     python3-rosdep \
     ros-humble-rviz2 \
+    ros-humble-gazebo-plugins \
     zenoh-bridge-ros2dds
 
 # get the source tree and analyse it for its package.xml only
