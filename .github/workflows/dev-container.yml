@@ -20,6 +20,11 @@ jobs:
         config: 
           - cuda-opengl
     steps:
+      - name: Node Js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "^16.13.0 || >=18.0.0"
+
       - name: Checkout from github
         uses: actions/checkout@v3
       - name: extract the github reference
