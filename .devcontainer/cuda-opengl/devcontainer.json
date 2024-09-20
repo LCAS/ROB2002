@@ -2,6 +2,9 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
 	"name": "L-CAS Humble CUDA-OpenGL Devcontainer",
+	// Use the below image to not build locally (pushed by GitHub Action)
+	// disable the "build" section below in this case
+	// "image": "lcas.lincoln.ac.uk/devcontainer/lcas/rob2002:cuda-opengl-main",
 	"build": {
 		"dockerfile": "../Dockerfile",
 		"args": {
