@@ -10,6 +10,9 @@ from cv_bridge import CvBridge
 
 class DetectorBasic(Node):
     visualisation = True
+    data_logging = True
+    log_path = 'evaluation/data/'
+    seq = 0
 
     def __init__(self):    
         super().__init__('detector_basic')
@@ -51,10 +54,18 @@ class DetectorBasic(Node):
         for polygon in detected_objects:
             self.object_pub.publish(PolygonStamped(polygon=polygon, header=data.header))
 
+        # log the processed images to files
+        if self.data_logging:
+            cv.imwrite(self.log_path + f'colour_{self.seq:06d}.png', bgr_image)
+            cv.imwrite(self.log_path + f'mask_{self.seq:06d}.png', bgr_thresh)
+
+        # visualise the image processing results    
         if self.visualisation:
             cv.imshow("colour image", bgr_image)
             cv.imshow("detection mask", bgr_thresh)
             cv.waitKey(1)
+
+        self.seq += 1
 
 def main(args=None):
     rclpy.init(args=args)
