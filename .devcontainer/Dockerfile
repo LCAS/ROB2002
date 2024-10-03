@@ -11,6 +11,8 @@ RUN apt-get update \
     git \
     python3-pip \
     python3-rosdep \
+    python3-matplotlib \
+    python3-pandas \
     ros-humble-rviz2 \
     ros-humble-gazebo-plugins \
     zenoh-bridge-ros2dds
