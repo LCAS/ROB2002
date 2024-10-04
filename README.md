@@ -5,3 +5,5 @@ This repository is a companion resource for the Evaluation for Robotics module, 
 
 [Workshop 2 - Basic Functionality](https://github.com/LCAS/ROB2002/wiki/Workshop-2-%E2%80%90-Basic-Functionality)
 
+[Workshop 3 ‐ Experimental data collection](https://github.com/LCAS/ROB2002/wiki/Workshop-3-%E2%80%90-Experimental-data-collection)
+
