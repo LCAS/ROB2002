@@ -7,3 +7,4 @@ This repository is a companion resource for the Evaluation for Robotics module, 
 
 [Workshop 3 ‐ Experimental data collection](https://github.com/LCAS/ROB2002/wiki/Workshop-3-%E2%80%90-Experimental-data-collection)
 
+[Workshop 4 ‐ Statistical data exploration](https://github.com/LCAS/ROB2002/wiki/Workshop-4-%E2%80%90-Statistical-data-exploration)
