@@ -12,7 +12,7 @@ class CounterBasic(Node):
         self.object_counter = 0
         self.frame_counter = -1
 
-        self.subscriber = self.create_subscription(PolygonStamped, "/object_polygon", self.counter_callback, 10)
+        self.subscriber = self.create_subscription(PolygonStamped, "/object_polygon", self.total_counter_callback, 10)
 
     def counter_callback(self, data):
         
@@ -28,6 +28,10 @@ class CounterBasic(Node):
         # keep counting objects
         self.object_counter += 1
 
+    def total_counter_callback(self, data):       
+        # keep counting objects
+        self.object_counter += 1
+        print(f'{self.object_counter:d} objects counted so far.')
 
 def main(args=None):
     rclpy.init(args=args)

@@ -25,7 +25,9 @@ setup(
         'console_scripts': [
             'mover_basic = rob2002_tutorial.mover_basic:main',
             'mover_laser = rob2002_tutorial.mover_laser:main',
+            'mover_spinner = rob2002_tutorial.mover_spinner:main',
             'detector_basic = rob2002_tutorial.detector_basic:main',
+            'detector_better = rob2002_tutorial.detector_dblcounting:main',
             'counter_basic = rob2002_tutorial.counter_basic:main',
         ],
     },
