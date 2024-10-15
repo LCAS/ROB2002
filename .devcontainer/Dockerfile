@@ -15,6 +15,7 @@ RUN apt-get update \
     python3-pandas \
     ros-humble-rviz2 \
     ros-humble-gazebo-plugins \
+    ros-humble-nav2-* \
     zenoh-bridge-ros2dds
 
 # get the source tree and analyse it for its package.xml only
