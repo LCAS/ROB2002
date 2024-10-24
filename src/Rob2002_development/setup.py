@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             'mover = Rob2002_development.mover_basic:main',
             'colour = Rob2002_development.detector_basic:main',
+            'spin = Rob2002_development.spinner:main',
         ],
     },
 )
