@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import os
+from glob import glob
 
 package_name = 'cmp9767_tutorial'
 
@@ -10,6 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name), glob('launch/*launch.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,6 +27,7 @@ setup(
             'move_square = cmp9767_tutorial.move_square:main',
             'move_circle = cmp9767_tutorial.move_circle:main',
             'tf_listener = cmp9767_tutorial.tf_listener:main',
+            'demo_inspection = cmp9767_tutorial.demo_inspection:main'
         ],
     },
 )
