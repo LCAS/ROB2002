@@ -16,6 +16,7 @@ RUN apt-get update \
     ros-humble-rviz2 \
     ros-humble-gazebo-plugins \
     ros-humble-nav2-* \
+    ros-humble-rqt* \
     zenoh-bridge-ros2dds
 
 # get the source tree and analyse it for its package.xml only
