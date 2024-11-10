@@ -2,40 +2,48 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
-true_count = 20
-data = np.round(np.random.normal(24, 5, 20))
-data_B = np.array([27, 16, 20, 20, 18, 20, 27, 15, 28, 15, 20, 19, 14, 10, 13, 28, 24, 26, 23, 9])
-data_B = data
-data = np.array([10, 20, 17, 15, 24, 17, 25, 17, 20, 14, 21, 22, 26, 16, 19, 23, 20, 27, 20, 23])
-data_short = data[0:5]
+# key parameters
+true_count = 20 # this is our reference, true count or M
+N = 20          # the total number of repetitions N
+N_short = 5     # the short subset 
 
-print(f'N = {len(data_short):2d}: ', data_short.astype(int))
-print(f' mean: {np.mean(data_short):.2f}, std: {np.std(data_short):.2f}, SE: {stats.sem(data_short):.2f}')
-print(f'N = {len(data):2d}: ', data.astype(int))
-print(f' mean: {np.mean(data):.2f}, std: {np.std(data):.2f}, SE: {stats.sem(data):.2f}')
+data_A = np.round(np.random.normal(20, 5, N)) # a standard set with the mean close to the true value
+data_B = np.round(np.random.normal(24, 5, N)) # a second set with the mean away from the true count value
 
-error = data - true_count
+data_A_short = data_A[0:N_short] # subset of data N = 5
+data_B_short = data_B[0:N_short]
+
+print('Basic stats and standard error:')
+print(f'A, N = {len(data_A_short):2d}: ', data_A_short.astype(int))
+print(f' mean: {np.mean(data_A_short):.2f}, std: {np.std(data_A_short):.2f}, SE: {stats.sem(data_A_short):.2f}')
+print(f'A, N = {len(data_A):2d}: ', data_A.astype(int))
+print(f' mean: {np.mean(data_A):.2f}, std: {np.std(data_A):.2f}, SE: {stats.sem(data_A):.2f}')
+
+print('\nError metrics:')
+error_A = data_A - true_count
 error_B = data_B - true_count
 
-error_short = error[0:5]
-error_short_B = error_B[0:5]
+error_A_short = error_A[0:N_short]
+error_B_short = error_B[0:N_short]
 
-print(f'N=5 A, t: {stats.ttest_1samp(data_short, true_count).statistic:.2f}, p: {stats.ttest_1samp(data_short, true_count).pvalue:.2f}')
-print(f'N=20 A, t: {stats.ttest_1samp(data, true_count).statistic:.2f}, p: {stats.ttest_1samp(data, true_count).pvalue:.2f}')
+print(f'A, N=5, MAE: {np.mean(np.abs(error_A_short)):.2f}, RMSE: {np.sqrt(np.mean(error_A_short ** 2)):.2f}')
+print(f'A, N=20, MAE: {np.mean(np.abs(error_A)):.2f}, RMSE: {np.sqrt(np.mean(error_A ** 2)):.2f}')
 
-print(f'N=5 B, t: {stats.ttest_1samp(data_B[0:5], true_count).statistic:.2f}, p: {stats.ttest_1samp(data_B[0:5], true_count).pvalue:.2f}')
-print(f'N=20 B, t: {stats.ttest_1samp(data_B, true_count).statistic:.2f}, p: {stats.ttest_1samp(data_B, true_count).pvalue:.2f}')
+print(f'B, N=5, MAE: {np.mean(np.abs(error_B_short)):.2f}, RMSE: {np.sqrt(np.mean(error_B_short ** 2)):.2f}')
+print(f'B, N=20, MAE: {np.mean(np.abs(error_B)):.2f}, RMSE: {np.sqrt(np.mean(error_B ** 2)):.2f}')
 
-print(f'N=5 A, MAE: {np.mean(np.abs(error_short)):.2f}, RMSE: {np.sqrt(np.mean(error_short ** 2)):.2f}')
-print(f'N=5 B, MAE: {np.mean(np.abs(error_short_B)):.2f}, RMSE: {np.sqrt(np.mean(error_short_B ** 2)):.2f}')
+print('\nOne-sample Student t-test:')
+print(f'A, N=5, t: {stats.ttest_1samp(data_A_short, true_count).statistic:.2f}, p: {stats.ttest_1samp(data_A_short, true_count).pvalue:.2f}')
+print(f'A, N=20, t: {stats.ttest_1samp(data_A, true_count).statistic:.2f}, p: {stats.ttest_1samp(data_A, true_count).pvalue:.2f}')
 
-print(f'N=20 A, MAE: {np.mean(np.abs(error)):.2f}, RMSE: {np.sqrt(np.mean(error ** 2)):.2f}')
-print(f'N=20 B, MAE: {np.mean(np.abs(error_B)):.2f}, RMSE: {np.sqrt(np.mean(error_B ** 2)):.2f}')
+print(f'B, N=5, t: {stats.ttest_1samp(data_B_short, true_count).statistic:.2f}, p: {stats.ttest_1samp(data_B_short, true_count).pvalue:.2f}')
+print(f'B, N=20, t: {stats.ttest_1samp(data_B, true_count).statistic:.2f}, p: {stats.ttest_1samp(data_B, true_count).pvalue:.2f}')
 
-# SE using numpy only
-# print('SE full', np.std(data)/np.sqrt(len(data)))
-# print('SE short', np.std(data_short)/np.sqrt(len(data_short)))
+print('\nTwo-sample Student t-test:')
+print(f'AB, N=5, t: {stats.ttest_ind(data_A_short, data_B_short).statistic:.2f}, p: {stats.ttest_ind(data_A_short, data_B_short).pvalue:.2f}')
+print(f'AB, N=20, t: {stats.ttest_ind(data_A, data_B).statistic:.2f}, p: {stats.ttest_ind(data_A, data_B).pvalue:.2f}')
 
+# additional visualisations
 # SE with increasing N
 # sd = []
 # se = []
