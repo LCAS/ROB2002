@@ -18,10 +18,87 @@ from copy import deepcopy
 from geometry_msgs.msg import PoseStamped
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 import rclpy
+from rclpy.node import Node
+from rclpy import qos
 
 """
 A simple waypoint navigation demo where the robot visits a sequence of waypoints placed on the map.
 """
+
+def MoverWaypoints(Node):
+    # Inspection route, probably read in from a file for a real application
+    # from either a map or drive and repeat. (x, y, yaw)
+    inspection_route = [
+        [0.59, 0.95, 0.0, 0.0, 0.13, 0.99],
+        [-0.73, 1.01, 0.0, 0.0, -0.5, 0.82],
+        [0.58, -1.98, 0.0, 0.0, 0.99, 0.13],
+        [-4.66, -2.29, 0.0, 0.0, 0.08, 0.99],
+        [-1.56, 0.75, 0.0, 0.0, -0.81, 0.58],
+        [-4.8, 0.58, 0.0, 0.0, -0.2, 0.97],
+    ]
+
+    def __init__(self):
+        super().__init__('mover_waypoints')
+        self.publisher = self.create_publisher(PoseStamped, "/next_waypoint", qos_profile=qos.qos_profile_sensor_data)
+        timer_period = 1.0  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.initial_pose = pose_from_xyquat()
+        self.waypoints = []
+        for wp in inspection_route:
+            self.waypoints.append(pose_from_xyquat(wp[0], wp[1], wp[2], wp[3], wp[4], wp[5]))
+
+        self.navigator = BasicNavigator()
+        self.navigator.setInitialPose(self.initial_pose)
+        # Wait for navigation to fully activate
+        self.navigator.waitUntilNav2Active()
+        # follow the specified waypoints
+        navigator.followWaypoints(self.waypoints)
+
+    def timer_callback(self):
+        # Some feedback on the progress
+        i = 0
+        if not self.navigator.isTaskComplete():
+            i += 1
+            feedback = self.navigator.getFeedback()
+            # publish currrent waypoint
+            self.publisher.publish(inspection_points[feedback.current_waypoint])        
+            if feedback:
+                print(
+                    'Executing current waypoint: '
+                    + str(feedback.current_waypoint + 1)
+                    + '/'
+                    + str(len(inspection_points))
+                )
+
+        result = navigator.getResult()
+        if result == TaskResult.SUCCEEDED:
+            print('Task complete! Returning to start...')
+        elif result == TaskResult.CANCELED:
+            print('Task was canceled. Returning to start...')
+        elif result == TaskResult.FAILED:
+            print('Task failed! Returning to start...')
+
+        # go back to start
+        initial_pose.header.stamp = navigator.get_clock().now().to_msg()
+        navigator.goToPose(initial_pose)
+        while not navigator.isTaskComplete():
+            pass
+
+        navigator.lifecycleShutdown()
+
+
+    def pose_from_xyquat(self, x=0, y=0, px=0, py=0, pz=0, pw=1):
+        pose = PoseStamped()
+        pose.header.frame_id = 'map'
+        pose.header.stamp = self.get_clock().now().to_msg()
+        pose.pose.position.x = x
+        pose.pose.position.y = y
+        pose.pose.orientation.x = px
+        pose.pose.orientation.z = py
+        pose.pose.orientation.z = pz
+        pose.pose.orientation.w = pw
+        return pose
+
 
 def main():
     rclpy.init()
@@ -73,6 +150,8 @@ def main():
     while not navigator.isTaskComplete():
         i += 1
         feedback = navigator.getFeedback()
+        # publish currrent waypoint
+        publisher.publish(inspection_points[feedback.current_waypoint])        
         if feedback and i % 5 == 0:
             print(
                 'Executing current waypoint: '
