@@ -13,137 +13,85 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from copy import deepcopy
-
-from geometry_msgs.msg import PoseStamped
-from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+import math
 import rclpy
 from rclpy.node import Node
 from rclpy import qos
+from geometry_msgs.msg import PoseStamped
+from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+from tf_transformations import quaternion_from_euler
 
 """
 A simple waypoint navigation demo where the robot visits a sequence of waypoints placed on the map.
 """
 
-def MoverWaypoints(Node):
-    # Inspection route, probably read in from a file for a real application
-    # from either a map or drive and repeat. (x, y, yaw)
-    inspection_route = [
-        [0.59, 0.95, 0.0, 0.0, 0.13, 0.99],
-        [-0.73, 1.01, 0.0, 0.0, -0.5, 0.82],
-        [0.58, -1.98, 0.0, 0.0, 0.99, 0.13],
-        [-4.66, -2.29, 0.0, 0.0, 0.08, 0.99],
-        [-1.56, 0.75, 0.0, 0.0, -0.81, 0.58],
-        [-4.8, 0.58, 0.0, 0.0, -0.2, 0.97],
-    ]
+# The waypoint route, probably read in from a file for a real application
+# from either a map or drive and repeat. x, y and theta (in radians)
+waypoint_route = [
+    [0.0, -1.75, math.pi],
+    [-4.0, -1.75, math.pi/2],
+    [-4.0, 0.0, 0.0],
+    [-2.0, 0.0, -math.pi/2],
+    [-2.0, -1.75, 0.0],
+    [0.0, -1.75, math.pi/2],
+    [0.0, 0.0, 0.0],
+]
 
-    def __init__(self):
-        super().__init__('mover_waypoints')
-        self.publisher = self.create_publisher(PoseStamped, "/next_waypoint", qos_profile=qos.qos_profile_sensor_data)
-        timer_period = 1.0  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.initial_pose = pose_from_xyquat()
-        self.waypoints = []
-        for wp in inspection_route:
-            self.waypoints.append(pose_from_xyquat(wp[0], wp[1], wp[2], wp[3], wp[4], wp[5]))
+# the same route but expressed as x, y and angle as partial quarterion (z, w)
+waypoint_route_quat = [
+    [0.0, -1.75, -1.0, 0.0],
+    [-4.0, -1.75, 0.7, 0.7],
+    [-4.0, 0.0, 0.0, 1.0],
+    [-2.0, 0.0, -0.7, 0.7],
+    [-2.0, -1.75, 0.0, 1.0],
+    [0.0, -1.75, 0.7, 0.7],
+    [0.0, 0.0, 0.0, 1.0],
+]
 
-        self.navigator = BasicNavigator()
-        self.navigator.setInitialPose(self.initial_pose)
-        # Wait for navigation to fully activate
-        self.navigator.waitUntilNav2Active()
-        # follow the specified waypoints
-        navigator.followWaypoints(self.waypoints)
+def pose_from_xyquat(timestamp, x=0.0, y=0.0, pz=0.0, pw=1.0):
+    pose = PoseStamped()
+    pose.header.frame_id = 'map'
+    pose.header.stamp = timestamp
+    pose.pose.position.x = x
+    pose.pose.position.y = y
+    pose.pose.orientation.z = pz
+    pose.pose.orientation.w = pw
+    return pose
 
-    def timer_callback(self):
-        # Some feedback on the progress
-        i = 0
-        if not self.navigator.isTaskComplete():
-            i += 1
-            feedback = self.navigator.getFeedback()
-            # publish currrent waypoint
-            self.publisher.publish(inspection_points[feedback.current_waypoint])        
-            if feedback:
-                print(
-                    'Executing current waypoint: '
-                    + str(feedback.current_waypoint + 1)
-                    + '/'
-                    + str(len(inspection_points))
-                )
-
-        result = navigator.getResult()
-        if result == TaskResult.SUCCEEDED:
-            print('Task complete! Returning to start...')
-        elif result == TaskResult.CANCELED:
-            print('Task was canceled. Returning to start...')
-        elif result == TaskResult.FAILED:
-            print('Task failed! Returning to start...')
-
-        # go back to start
-        initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-        navigator.goToPose(initial_pose)
-        while not navigator.isTaskComplete():
-            pass
-
-        navigator.lifecycleShutdown()
-
-
-    def pose_from_xyquat(self, x=0, y=0, px=0, py=0, pz=0, pw=1):
-        pose = PoseStamped()
-        pose.header.frame_id = 'map'
-        pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x = x
-        pose.pose.position.y = y
-        pose.pose.orientation.x = px
-        pose.pose.orientation.z = py
-        pose.pose.orientation.z = pz
-        pose.pose.orientation.w = pw
-        return pose
+def pose_from_xytheta(timestamp, x=0.0, y=0.0, theta=0.0):
+    # negative theta: turn clockwise
+    q = quaternion_from_euler(0, 0, theta)
+    return pose_from_xyquat(timestamp, x, y, q[2], q[3])
 
 
 def main():
+
     rclpy.init()
+
+    # publish the current waypoint location (for visualisation in rviz)
+    publisher = Node("waypoint_publisher").create_publisher(PoseStamped, "/current_waypoint", qos_profile=qos.qos_profile_parameters)
 
     navigator = BasicNavigator()
 
-    # Inspection route, probably read in from a file for a real application
-    # from either a map or drive and repeat. (x, y, yaw)
-    inspection_route = [
-        [0.59, 0.95, 0.0, 0.0, 0.13, 0.99],
-        [-0.73, 1.01, 0.0, 0.0, -0.5, 0.82],
-        [0.58, -1.98, 0.0, 0.0, 0.99, 0.13],
-        [-4.66, -2.29, 0.0, 0.0, 0.08, 0.99],
-        [-1.56, 0.75, 0.0, 0.0, -0.81, 0.58],
-        [-4.8, 0.58, 0.0, 0.0, -0.2, 0.97],
-    ]
+    # Set the initial pose
+    initial_pose = pose_from_xyquat(navigator.get_clock().now().to_msg())
 
-    # Set our demo's initial pose
-    initial_pose = PoseStamped()
-    initial_pose.header.frame_id = 'map'
-    initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    initial_pose.pose.position.x = 0.0
-    initial_pose.pose.position.y = 0.0
-    initial_pose.pose.orientation.z = 0.0
-    initial_pose.pose.orientation.w = 1.0
     navigator.setInitialPose(initial_pose)
 
     # Wait for navigation to fully activate
     navigator.waitUntilNav2Active()
 
-    # Send our route
-    inspection_points = []
-    inspection_pose = PoseStamped()
-    inspection_pose.header.frame_id = 'map'
-    inspection_pose.header.stamp = navigator.get_clock().now().to_msg()
-    for pt in inspection_route:
-        inspection_pose.pose.position.x = pt[0]
-        inspection_pose.pose.position.y = pt[1]
-        # Simplification of angle handling for demonstration purposes
-        inspection_pose.pose.orientation.z = pt[4]
-        inspection_pose.pose.orientation.w = pt[5]
-        inspection_points.append(deepcopy(inspection_pose))
+    # Prepare a set of waypoints 
+    waypoints = []
+    for wp in waypoint_route:
+        waypoints.append(pose_from_xytheta(navigator.get_clock().now().to_msg(), *wp))
+
+    # # if you would rather specify the orientation as quaternion use the following line instead
+    # for wp in waypoint_route_quat:
+    #     waypoints.append(pose_from_xyquat(navigator.get_clock().now().to_msg(), *wp))
 
     # follow the specified waypoints
-    navigator.followWaypoints(inspection_points)
+    navigator.followWaypoints(waypoints)
 
     # Some feedback on the progress
     i = 0
@@ -151,32 +99,22 @@ def main():
         i += 1
         feedback = navigator.getFeedback()
         # publish currrent waypoint
-        publisher.publish(inspection_points[feedback.current_waypoint])        
+        publisher.publish(waypoints[feedback.current_waypoint])        
         if feedback and i % 5 == 0:
             print(
                 'Executing current waypoint: '
                 + str(feedback.current_waypoint + 1)
                 + '/'
-                + str(len(inspection_points))
+                + str(len(waypoints))
             )
 
     result = navigator.getResult()
     if result == TaskResult.SUCCEEDED:
-        print('Task complete! Returning to start...')
+        print('Task complete!')
     elif result == TaskResult.CANCELED:
-        print('Task was canceled. Returning to start...')
+        print('Task was canceled.')
     elif result == TaskResult.FAILED:
-        print('Task failed! Returning to start...')
-
-    # go back to start
-    initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    navigator.goToPose(initial_pose)
-    while not navigator.isTaskComplete():
-        pass
-
-    navigator.lifecycleShutdown()
-
-    exit(0)
+        print('Task failed!')
 
 
 if __name__ == '__main__':
