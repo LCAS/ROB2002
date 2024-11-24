@@ -16,6 +16,7 @@ RUN apt-get update \
     ros-humble-rviz2 \
     ros-humble-gazebo-plugins \
     ros-humble-nav2-* \
+    ros-humble-tf-transformations \
     ros-humble-rqt* \
     zenoh-bridge-ros2dds
 
