@@ -18,6 +18,7 @@ RUN apt-get update \
     ros-humble-nav2-* \
     ros-humble-tf-transformations \
     ros-humble-rqt* \
+    ros-humble-find-object-2d \
     zenoh-bridge-ros2dds
 
 # get the source tree and analyse it for its package.xml only
