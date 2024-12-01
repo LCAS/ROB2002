@@ -38,6 +38,11 @@ class Detector3D(Node):
         self.bridge = CvBridge()
 
         # subscribers and publishers
+        # if using the real robot change the camera/image topics to:
+        # /camera/color/camera_info
+        # /camera/depth/camera_info
+        # /camera/color/iamge_raw
+        # /camera/depth/image_raw
         self.ccamera_info_sub = self.create_subscription(CameraInfo, '/limo/depth_camera_link/camera_info',
                                                 self.ccamera_info_callback, qos_profile=qos.qos_profile_sensor_data)
         
@@ -50,7 +55,7 @@ class Detector3D(Node):
         self.dimage_sub = self.create_subscription(Image, '/limo/depth_camera_link/depth/image_raw', 
                                                   self.image_depth_callback, qos_profile=qos.qos_profile_sensor_data)
         
-        self.object_location_pub = self.create_publisher(PoseStamped, '/limo/object_location', qos.qos_profile_parameters)
+        self.object_location_pub = self.create_publisher(PoseStamped, '/object_location', qos.qos_profile_parameters)
 
         # tf functionality
         self.tf_buffer = Buffer()
