@@ -19,17 +19,24 @@ from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 
 class Detector3D(Node):
+    # use real robot?
+    real_robot = False
+
     ccamera_model = None
     dcamera_model = None
     image_depth_ros = None
 
+    min_area_size = 100
+    global_frame = 'odom' # change to 'map' if using maps
+
     # aspect ratio between color and depth cameras
     # calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width)
     color2depth_aspect = 1.0 # simulated camera
-    # color2depth_aspect = (71.0/640) / (67.9/400) # real camera
-    min_area_size = 100
     camera_frame = 'depth_link' # for simulated robot
-    global_frame = 'odom' # change to 'map' if using maps
+
+    if real_robot:
+        color2depth_aspect = (71.0/640) / (67.9/400) # real camera
+        camera_frame = 'camera_link' # for simulated robot
 
     visualisation = True
 
@@ -38,21 +45,27 @@ class Detector3D(Node):
         self.bridge = CvBridge()
 
         # subscribers and publishers
-        # if using the real robot change the camera/image topics to:
-        # /camera/color/camera_info
-        # /camera/depth/camera_info
-        # /camera/color/iamge_raw
-        # /camera/depth/image_raw
-        self.ccamera_info_sub = self.create_subscription(CameraInfo, '/limo/depth_camera_link/camera_info',
+        ccamera_info_topic = '/limo/depth_camera_link/camera_info'
+        dcamera_info_topic = '/limo/depth_camera_link/depth/camera_info'
+        cimage_topic = '/limo/depth_camera_link/image_raw'
+        dimage_topic = '/limo/depth_camera_link/depth/image_raw'
+
+        if self.real_robot:
+            ccamera_info_topic = '/camera/color/camera_info'
+            dcamera_info_topic = '/camera/depth/camera_info'
+            cimage_topic = '/camera/color/image_raw'
+            dimage_topic = '/camera/depth/image_raw'
+
+        self.ccamera_info_sub = self.create_subscription(CameraInfo, ccamera_info_topic,
                                                 self.ccamera_info_callback, qos_profile=qos.qos_profile_sensor_data)
         
-        self.dcamera_info_sub = self.create_subscription(CameraInfo, '/limo/depth_camera_link/depth/camera_info',
+        self.dcamera_info_sub = self.create_subscription(CameraInfo, dcamera_info_topic,
                                                 self.dcamera_info_callback, qos_profile=qos.qos_profile_sensor_data)
 
-        self.cimage_sub = self.create_subscription(Image, '/limo/depth_camera_link/image_raw', 
+        self.cimage_sub = self.create_subscription(Image, cimage_topic, 
                                                   self.image_color_callback, qos_profile=qos.qos_profile_sensor_data)
         
-        self.dimage_sub = self.create_subscription(Image, '/limo/depth_camera_link/depth/image_raw', 
+        self.dimage_sub = self.create_subscription(Image, dimage_topic, 
                                                   self.image_depth_callback, qos_profile=qos.qos_profile_sensor_data)
         
         self.object_location_pub = self.create_publisher(PoseStamped, '/object_location', qos.qos_profile_parameters)
@@ -95,6 +108,9 @@ class Detector3D(Node):
         # covert image to open_cv
         self.image_color = self.bridge.imgmsg_to_cv2(data, "bgr8")
         self.image_depth = self.bridge.imgmsg_to_cv2(self.image_depth_ros, "32FC1")
+        # real robot depth camera returns mm rather than m: normalise
+        if self.real_robot:
+            self.image_depth /= 1000.0
 
         # detect a color blob in the color image (here it is bright red)
         # provide the right values, or even better do it in HSV
