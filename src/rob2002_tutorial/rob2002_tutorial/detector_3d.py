@@ -21,7 +21,7 @@ from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 class Detector3D(Node):
     ccamera_model = None
     dcamera_model = None
-    image_depth = None
+    image_depth_ros = None
 
     # aspect ratio between color and depth cameras
     # calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width)
@@ -85,15 +85,16 @@ class Detector3D(Node):
         self.dcamera_model.fromCameraInfo(data)
 
     def image_depth_callback(self, data):
-        self.image_depth = self.bridge.imgmsg_to_cv2(data, "32FC1")
+        self.image_depth_ros = data
 
     def image_color_callback(self, data):
         # wait for camera models and depth image to arrive
-        if self.ccamera_model is None or self.dcamera_model is None or self.image_depth is None:
+        if self.ccamera_model is None or self.dcamera_model is None or self.image_depth_ros is None:
             return
         
         # covert image to open_cv
         self.image_color = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        self.image_depth = self.bridge.imgmsg_to_cv2(self.image_depth_ros, "32FC1")
 
         # detect a color blob in the color image (here it is bright red)
         # provide the right values, or even better do it in HSV
