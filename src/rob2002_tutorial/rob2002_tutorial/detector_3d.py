@@ -19,7 +19,7 @@ from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 
 class Detector3D(Node):
-    # use real robot?
+    # use the real robot?
     real_robot = False
 
     ccamera_model = None
@@ -32,13 +32,13 @@ class Detector3D(Node):
     # aspect ratio between color and depth cameras
     # calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width)
     color2depth_aspect = 1.0 # simulated camera
-    camera_frame = 'depth_link' # for simulated robot
+    camera_frame = 'depth_link' 
 
     if real_robot:
-        color2depth_aspect = (71.0/640) / (67.9/400) # real camera
-        camera_frame = 'camera_link' # for simulated robot
+        color2depth_aspect = (71.0/640) / (67.9/640) # real camera
+        camera_frame = 'camera_color_optical_frame' 
 
-    visualisation = True
+    visualisation = False
 
     def __init__(self):    
         super().__init__('Detector3D')
@@ -137,7 +137,7 @@ class Detector3D(Node):
                                                 self.tf_buffer.lookup_transform(self.global_frame, self.camera_frame, rclpy.time.Time())) 
 
                 # publish so we can see that in rviz
-                self.object_location_pub.publish(PoseStamped(header=Header(frame_id=self.camera_frame),
+                self.object_location_pub.publish(PoseStamped(header=Header(frame_id=self.global_frame),
                                               pose=global_pose))        
 
                 print(f'--- object id {num} ---')
@@ -151,8 +151,9 @@ class Detector3D(Node):
 
         if self.visualisation:
             #resize and adjust for visualisation
-            # image_color = cv2.resize(image_color, (0,0), fx=0.5, fy=0.5)
             self.image_depth *= 1.0/10.0 # scale for visualisation (max range 10.0 m)
+            # self.image_color = cv2.resize(self.image_color, (0,0), fx=0.5, fy=0.5)
+            # self.image_depth = cv2.resize(self.image_depth, (0,0), fx=0.5, fy=0.5)
             cv2.imshow("image color", self.image_color)
             cv2.imshow("image depth", self.image_depth)
             cv2.waitKey(1)
