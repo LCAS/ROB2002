@@ -67,7 +67,7 @@ RUN . /opt/ros/humble/setup.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # build the workspace but only until limo_gazebosim to avoid building the hardware specific packages
-RUN cd /opt/ros/lcas; colcon build --packages-up-to limo_gazebosim; \
+RUN cd /opt/ros/lcas; colcon build --packages-up-to limo_navigation limo_gazebosim; \
     rm -rf /opt/ros/lcas/src/ /opt/ros/lcas/build/ /opt/ros/lcas/log/
 
 FROM depbuilder as devcontainer
@@ -90,7 +90,7 @@ RUN . /opt/ros/lcas/install/setup.sh && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN cd /opt/ros/lcas && colcon build --packages-up-to limo_gazebosim rob2002_tutorial limo_navigation && \
+RUN cd /opt/ros/lcas && colcon build --packages-up-to  rob2002_tutorial && \
     rm -rf /opt/ros/lcas/src/ /opt/ros/lcas/build/ /opt/ros/lcas/log/
 
 RUN echo "source /opt/ros/lcas/install/setup.bash" >> ~/.bashrc
