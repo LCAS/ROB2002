@@ -2,14 +2,8 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
 	"name": "L-CAS Humble CUDA-OpenGL ROB2002 Devcontainer",
-	"image": "lcas.lincoln.ac.uk/devcontainer/lcas/rob2002:cuda-opengl-deployment",
-	//"build": {
-	//	"dockerfile": "../Dockerfile",
-	//	"args": {
-	//		"BASE_IMAGE": "lcas.lincoln.ac.uk/lcas/ros:jammy-humble-cuda12.2-opengl"
-	//	},
-	//	"context": "../.."
-	//},
+	"image": "lcas.lincoln.ac.uk/devcontainer/lcas/rob2002",
+	//"image": "lcas.lincoln.ac.uk/devcontainer/lcas/rob2002-arm64",
 
 	"forwardPorts": [5801],
 	"portsAttributes": {
