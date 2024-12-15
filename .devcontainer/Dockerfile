@@ -90,7 +90,7 @@ RUN . /opt/ros/lcas/install/setup.sh && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN cd /opt/ros/lcas && colcon build --packages-up-to uol_tidybot_control && \
+RUN cd /opt/ros/lcas && colcon build --packages-up-to limo_gazebosim rob2002_tutorial limo_navigation && \
     rm -rf /opt/ros/lcas/src/ /opt/ros/lcas/build/ /opt/ros/lcas/log/
 
 RUN echo "source /opt/ros/lcas/install/setup.bash" >> ~/.bashrc
