@@ -12,19 +12,12 @@ on:
     
 jobs:
   build_devcontainer:
-    # only run for LCAS repositories
-    if: github.repository_owner == 'LCAS' || github.repository_owner == 'lcas'
-    runs-on: lcas
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         config: 
           - cuda-opengl
     steps:
-      - name: Node Js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "^16.13.0 || >=18.0.0"
-
       - name: Checkout from github
         uses: actions/checkout@v3
       - name: extract the github reference
