@@ -6,13 +6,17 @@
 	// disable the "build" section below in this case
 	// "image": "lcas.lincoln.ac.uk/devcontainer/lcas/rob2002:cuda-opengl-main",
 	"build": {
-		"dockerfile": "../Dockerfile",
+		"dockerfile": "./Dockerfile",
 		"args": {
+			// set the base image, add `-arm64` as a suffix if you have an ARM (e.g. Apple Mx) CPU:
 			"BASE_IMAGE": "lcas.lincoln.ac.uk/lcas/ros:jammy-humble-cuda12.2-opengl"
 		},
-		"context": "../.."
+		// change this to linux/arm64 if you have an ARM (e.g. Apple Mx) CPU:
+		"platform": "linux/amd64",
+		"context": ".."
 	},
 
+	// forward the virtual desktop port
 	"forwardPorts": [5801],
 	"portsAttributes": {
 		"5801": {
