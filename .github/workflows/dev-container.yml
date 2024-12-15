@@ -13,10 +13,7 @@ on:
 jobs:
   build_devcontainer:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        config: 
-          - cuda-opengl
+
     steps:
       - name: Checkout from github
         uses: actions/checkout@v3
@@ -41,20 +38,10 @@ jobs:
           password: ${{ secrets.LCAS_REGISTRY_TOKEN }}
   
       - name: Build dev container task
-        if: ${{ github.event_name == 'pull_request' }} 
         uses: devcontainers/ci@v0.3
         with:
           imageName: lcas.lincoln.ac.uk/devcontainer/${{ steps.docker_image_name.outputs.docker_image }}
-          configFile: ./.devcontainer/${{ matrix.config }}/devcontainer.json
+          configFile: ./.devcontainer/devcontainer.json
           push: never
-          imageTag: ${{ matrix.config }}-${{ env.BRANCH }}
-          #runCmd: "bash .devcontainer/run-ci.sh"
-      - name: Build and push dev container image
-        if: ${{ github.event_name != 'pull_request' }} 
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: lcas.lincoln.ac.uk/devcontainer/${{ steps.docker_image_name.outputs.docker_image }}
-          configFile: ./.devcontainer/${{ matrix.config }}/devcontainer.json
-          push: always
-          imageTag: ${{ matrix.config }}-${{ env.BRANCH }}
+          imageTag: ci
           #runCmd: "bash .devcontainer/run-ci.sh"
