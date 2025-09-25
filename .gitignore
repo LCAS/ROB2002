@@ -50,6 +50,3 @@ qtcreator-*
 
 # Catkin custom files
 CATKIN_IGNORE
-
-# evaluation data files
-evaluation/data/*
