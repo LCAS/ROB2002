@@ -27,6 +27,7 @@ setup(
             'mover_laser = rob2002_tutorial.mover_laser:main',
             'detector_basic = rob2002_tutorial.detector_basic:main',
             'counter_basic = rob2002_tutorial.counter_basic:main',
+            'mover_waypoints = rob2002_tutorial.mover_waypoints:main',
         ],
     },
 )
